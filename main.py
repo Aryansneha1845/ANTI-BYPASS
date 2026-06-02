@@ -62,7 +62,7 @@ def root_page():
         <h1>Server is running!</h1>
     </body>
     </html>
-    """))
+    """)
 async def root_page():
     return {"status": "Server is running perfectly!"}
 
