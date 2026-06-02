@@ -12,7 +12,7 @@ import threading
 # --- CONFIGURATION (In teeno ko sahi se bhar do) ---
 BOT_TOKEN = "8679608771:AAFOxJ-SB-fbrpzbf1oHEBo5AXImgS65OI0"
 CLOUDFLARE_SECRET_KEY = "0x4AAAAAADdlsEueqshqwNC30WwX3e-l3h4"
-SERVER_URL = "https://anti-bypass.onrender.com"  # Aakhri mein / mat lagana
+SERVER_URL = "anti-bypass-production.up.railway.app"  # Aakhri mein / mat lagana
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = FastAPI()
