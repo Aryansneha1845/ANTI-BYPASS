@@ -51,6 +51,18 @@ def process_link(message):
 
 # --- WEB SERVER LOGIC ---
 @app.get("/")
+def root_page():
+    # Monetag verification code yahan home page par add kar diya
+    return HTMLResponse(content="""
+    <html>
+    <head>
+        <meta name="monetag" content="d14fb179012a6ae543ad87410c833c6e">
+    </head>
+    <body>
+        <h1>Server is running!</h1>
+    </body>
+    </html>
+    """))
 async def root_page():
     return {"status": "Server is running perfectly!"}
 
