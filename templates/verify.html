@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Verification</title>
+    
+    <meta name="monetag" content="d14fb179012a6ae543ad87410c833c6e">
+    
+    <title>Security Check</title>
+    
+    <script>
+        // Monetag se mila hua JS code yahan paste karein
+    </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0f172a;
-            color: #ffffff;
+            color: #f8fafc;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,20 +25,33 @@
         }
         .container {
             background-color: #1e293b;
-            padding: 30px;
+            padding: 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             text-align: center;
-            max-width: 400px;
+            max-width: 450px;
             width: 90%;
         }
-        h2 { color: #38bdf8; margin-bottom: 10px; }
-        p { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
+        h2 { color: #38bdf8; margin-bottom: 1rem; }
+        p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-bottom: 2rem; }
         .captcha-box {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
         }
+        .btn {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: #7dd3fc; }
     </style>
 </head>
 <body>
@@ -44,7 +64,7 @@
         <div class="captcha-box">
             <div class="cf-turnstile" data-sitekey="0x4AAAAAADdlsLO4J02xbgEV"></div>
         </div>
-        <button type="submit" style="background-color: #38bdf8; color: #0f172a; border: none; padding: 12px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%;">Verify & Continue</button>
+        <button type="submit" class="btn">Verify & Continue</button>
     </form>
 </div>
 
