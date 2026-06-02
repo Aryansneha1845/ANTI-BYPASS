@@ -87,7 +87,18 @@ async def handle_verification(request: Request, link_id: str):
         
     return HTMLResponse(content="<h3>Link Expired!</h3>", status_code=404)
 
+# --- WEB SERVER & BOT STARTUP ---
+
+# Webhook bypass karne ke liye aur bot ko background mein chalane ka sabse stable tarika
+@app.on_event("startup")
+def start_bot_thread():
+    # Jinja2 templates check karne ke liye safe logging
+    print(f"Templates directory set to: {templates.directory}")
+    # Bot ko ek safe separate thread mein start karenge
+    threading.Thread(target=lambda: bot.infinity_polling(timeout=20, long_polling_timeout=10), daemon=True).start()
+    print("🤖 Telegram Bot Polling started in background thread...")
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    threading.Thread(target=lambda: bot.infinity_polling(timeout=20, long_polling_timeout=10), daemon=True).start()
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    # 🔥 Uvicorn ko direct object pass karenge taaki Render isse import error na de
+    uvicorn.run(app, host="0.0.0.0", port=port)
