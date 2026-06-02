@@ -11,7 +11,7 @@ import uvicorn
 # ⚠️ APNI DETIALS YAHAN BHARO
 BOT_TOKEN = "8679608771:AAGePlI-DGzrRSyYylPCuEy34G9fhGra1WQ"
 CLOUDFLARE_SECRET_KEY = "0x4AAAAAADdkLAf0CGVgqqyG5vBvDQSMzWM"
-SERVER_URL = "http://localhost:8000" # Local test ke liye yahi rehne do
+SERVER_URL = "https://anti-bypass.onrender.com"  # <-- Tera Render URL yahan aayega
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = FastAPI()
