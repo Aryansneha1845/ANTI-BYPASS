@@ -10,7 +10,7 @@ import uvicorn
 import threading
 
 # --- CONFIGURATION ---
-BOT_TOKEN = "8679608771:AAFOxJ-SB-fbrpzbf1oHEBo5AXImgS65OI0"
+BOT_TOKEN = "8679608771:AAEzRleDch3cxKXuFLkzjE4McltBZG2rzXQ"
 CLOUDFLARE_SECRET_KEY = "0x4AAAAAADdlsEueqshqwNC30WwX3e-l3h4"
 SERVER_URL = "https://anti-bypass-production.up.railway.app"
 CHANNEL_ID = "@Antibypassbots" 
