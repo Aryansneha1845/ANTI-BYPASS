@@ -2,17 +2,23 @@ import os
 import base64
 import telebot
 import requests
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import uvicorn
 import threading
 
-# --- CONFIGURATION (In teeno ko sahi se bhar do) ---
-BOT_TOKEN = "8679608771:AAFOxJ-SB-fbrpzbf1oHEBo5AXImgS65OI0"
+# --- CONFIGURATION ---
+BOT_TOKEN = "8679608771:AAEzRleDch3cxKXuFLkzjE4McltBZG2rzXQ"
 CLOUDFLARE_SECRET_KEY = "0x4AAAAAADdlsEueqshqwNC30WwX3e-l3h4"
-SERVER_URL = "anti-bypass-production.up.railway.app"  # Aakhri mein / mat lagana
+SERVER_URL = "https://anti-bypass-production.up.railway.app"
+CHANNEL_ID = "@Antibypassbots" 
+
+# Links
+MAIN_CHANNEL = "https://t.me/c/3946440796/1"
+BACKUP_CHANNEL = "https://t.me/c/3738247687/1"
+BOT_LINK = "https://t.me/Antibypassbots"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = FastAPI()
@@ -20,84 +26,91 @@ app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+# --- FUNCTIONS ---
+def get_tiny_url(long_url):
+    try:
+        response = requests.get(f"https://tinyurl.com/api-create.php?url={long_url}")
+        return response.text if response.status_code == 200 else long_url
+    except: return long_url
+
+def is_subscribed(user_id):
+    try:
+        member = bot.get_chat_member(CHANNEL_ID, user_id)
+        return member.status in ['member', 'administrator', 'creator']
+    except: return False
+
 def encode_url(url: str) -> str:
     return base64.urlsafe_b64encode(url.encode()).decode().rstrip("=")
 
 def decode_url(encoded_str: str) -> str:
     try:
         padding = 4 - (len(encoded_str) % 4)
-        if padding < 4:
-            encoded_str += "=" * padding
+        if padding < 4: encoded_str += "=" * padding
         return base64.urlsafe_b64decode(encoded_str.encode()).decode()
-    except Exception:
-        return None
+    except: return None
 
 # --- TELEGRAM BOT LOGIC ---
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    bot.reply_to(message, "👋 **Welcome!** Apne shortener link bhejo, main use bypass-proof bana dunga.", parse_mode="Markdown")
+    bot.reply_to(message, "👋 **Welcome to Anti-Bypass!**\n\nApni link bhejo, main use bypass-proof bana dunga.", 
+                 parse_mode="Markdown", disable_web_page_preview=True)
 
 @bot.message_handler(func=lambda message: message.text.startswith(('http://', 'https://')))
 def process_link(message):
+    user_id = message.from_user.id
+    
+    # Subscription Check with Custom Layout
+    if not is_subscribed(user_id):
+        layout = (
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "✨ **EXCLUSIVE CONTENT HUB** ✨\n"
+            "━━━━━━━━━━━━━━━━━━━━\n\n"
+            "🔓 **Access Your Premium Files Here:**\n"
+            f"🔗 [Main Channel]({MAIN_CHANNEL}) — *Latest Exclusive Content*\n\n"
+            "🤖 **Official Bypass Bot:**\n"
+            f"🔗 [Anti-Bypass Bot]({BOT_LINK}) — *Unlock Downloads Instantly*\n\n"
+            "📦 **Backup & Premium Vault:**\n"
+            f"🔗 [Backup Channel]({BACKUP_CHANNEL}) — *Restricted Premium Files*\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "💡 *Tip: Link access karne mein dikkat ho, toh hamare Bot ka use karein.*\n"
+            "━━━━━━━━━━━━━━━━━━━━"
+        )
+        bot.reply_to(message, layout, parse_mode="Markdown", disable_web_page_preview=True)
+        return
+
+    # Link Processing
     original_url = message.text.strip()
     link_id = encode_url(original_url)
-    protected_url = f"{SERVER_URL}/verify/{link_id}"
+    long_protected_url = f"{SERVER_URL}/verify/{link_id}"
+    short_link = get_tiny_url(long_protected_url)
     
-    response_text = (
-        "🔒 <b>Link Protected Successfully!</b>\n\n"
-        f"🔗 <b>Your Secure Link:</b> {protected_url}"
-    )
-    bot.reply_to(message, response_text, parse_mode="HTML")
+    bot.reply_to(message, f"✅ **Link Secured!**\n\n🔗 **Your Link:** {short_link}", 
+                 parse_mode="HTML", disable_web_page_preview=True)
 
 # --- WEB SERVER LOGIC ---
 @app.get("/")
-async def root_page():
-    return {"status": "Server is running perfectly!"}
+def root_page():
+    return HTMLResponse("<h1>Server Active</h1>")
 
 @app.get("/verify/{link_id}", response_class=HTMLResponse)
 async def serve_verify_page(request: Request, link_id: str):
-    original_url = decode_url(link_id)
-    if not original_url:
-        return HTMLResponse(content="<h3>Error: Invalid Link!</h3>", status_code=400)
     return templates.TemplateResponse("verify.html", {"request": request, "link_id": link_id})
 
 @app.post("/redirect/{link_id}")
 async def handle_verification(request: Request, link_id: str):
     form_data = await request.form()
     turnstile_response = form_data.get("cf-turnstile-response")
+    payload = {"secret": CLOUDFLARE_SECRET_KEY, "response": turnstile_response}
+    verify = requests.post("https://challenges.cloudflare.com/turnstile/v0/siteverify", data=payload)
     
-    if not turnstile_response:
-        return HTMLResponse(content="<h3>Security Verification Failed! Captcha missing.</h3>", status_code=400)
-    
-    verify_url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-    payload = {
-        "secret": CLOUDFLARE_SECRET_KEY,
-        "response": turnstile_response
-    }
-    
-    verify_request = requests.post(verify_url, data=payload)
-    verify_result = verify_request.json()
-    
-    if not verify_result.get("success"):
-        return HTMLResponse(content="<h3>Security Check Failed! Please try again.</h3>", status_code=403)
-        
-    original_url = decode_url(link_id)
-    if original_url:
-        return RedirectResponse(url=original_url, status_code=303)
-        
-    return HTMLResponse(content="<h3>Link Expired!</h3>", status_code=404)
-
-# --- WEB SERVER & BOT STARTUP ---
-
-# Webhook bypass karne ke liye aur bot ko background mein chalane ka sabse stable tarika
-# --- WEB SERVER & BOT STARTUP ---
+    if verify.json().get("success"):
+        url = decode_url(link_id)
+        return RedirectResponse(url=url, status_code=303)
+    return HTMLResponse("<h3>Verification Failed!</h3>", status_code=403)
 
 @app.on_event("startup")
 def start_bot_thread():
-    # Logging mita di jo crash kar rahi thi
-    threading.Thread(target=lambda: bot.infinity_polling(timeout=20, long_polling_timeout=10), daemon=True).start()
-    print("🤖 Telegram Bot Polling started in background thread successfully!")
+    threading.Thread(target=lambda: bot.infinity_polling(), daemon=True).start()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
