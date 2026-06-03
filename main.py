@@ -13,7 +13,8 @@ import threading
 BOT_TOKEN = "8679608771:AAFOxJ-SB-fbrpzbf1oHEBo5AXImgS65OI0"
 CLOUDFLARE_SECRET_KEY = "0x4AAAAAADdlsEueqshqwNC30WwX3e-l3h4"
 SERVER_URL = "https://anti-bypass-production.up.railway.app"
-CHANNEL_ID = "@Antibypassbots" # Apne channel ka username yahan daal
+CHANNEL_ID = "@Antibypassbots" # Apne channel ka username
+CHANNEL_LINK = "https://t.me/Antibypassbots" # Join karne ka link
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = FastAPI()
@@ -21,7 +22,7 @@ app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-# --- HELPER FUNCTIONS ---
+# --- FUNCTIONS ---
 def get_tiny_url(long_url):
     try:
         response = requests.get(f"https://tinyurl.com/api-create.php?url={long_url}")
@@ -47,16 +48,16 @@ def decode_url(encoded_str: str) -> str:
 # --- TELEGRAM BOT LOGIC ---
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    bot.reply_to(message, "👋 **Welcome!** Apni link bhejo, main use bypass-proof bana dunga.", parse_mode="Markdown")
+    bot.reply_to(message, "👋 **Welcome to Anti-Bypass!**\n\nApni link bhejo, main use bypass-proof bana dunga.", parse_mode="Markdown")
 
 @bot.message_handler(func=lambda message: message.text.startswith(('http://', 'https://')))
 def process_link(message):
     user_id = message.from_user.id
     if not is_subscribed(user_id):
         markup = telebot.types.InlineKeyboardMarkup()
-        btn = telebot.types.InlineKeyboardButton("📢 Join Channel", url=f"https://t.me/{CHANNEL_ID.replace('@', '')}")
+        btn = telebot.types.InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK)
         markup.add(btn)
-        bot.reply_to(message, "🚫 **Pehle hamara channel join karo!**", reply_markup=markup)
+        bot.reply_to(message, f"🚫 **Pehle hamara channel join karo!**\n\nLink: {CHANNEL_LINK}", reply_markup=markup)
         return
 
     original_url = message.text.strip()
@@ -64,13 +65,12 @@ def process_link(message):
     long_protected_url = f"{SERVER_URL}/verify/{link_id}"
     short_link = get_tiny_url(long_protected_url)
     
-    response_text = f"✅ <b>Link Secured!</b>\n\n🔗 <b>Click here:</b> <a href='{short_link}'>{short_link}</a>"
-    bot.reply_to(message, response_text, parse_mode="HTML")
+    bot.reply_to(message, f"✅ <b>Link Secured!</b>\n\n🔗 <b>Your Link:</b> <a href='{short_link}'>{short_link}</a>", parse_mode="HTML")
 
 # --- WEB SERVER LOGIC ---
 @app.get("/")
 def root_page():
-    return HTMLResponse(content="<html><body><h1>Server is running!</h1></body></html>")
+    return HTMLResponse("<html><body><h1>Server is active.</h1></body></html>")
 
 @app.get("/verify/{link_id}", response_class=HTMLResponse)
 async def serve_verify_page(request: Request, link_id: str):
@@ -93,5 +93,4 @@ def start_bot_thread():
     threading.Thread(target=lambda: bot.infinity_polling(), daemon=True).start()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
