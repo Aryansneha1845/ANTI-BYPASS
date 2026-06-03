@@ -13,8 +13,12 @@ import threading
 BOT_TOKEN = "8679608771:AAFOxJ-SB-fbrpzbf1oHEBo5AXImgS65OI0"
 CLOUDFLARE_SECRET_KEY = "0x4AAAAAADdlsEueqshqwNC30WwX3e-l3h4"
 SERVER_URL = "https://anti-bypass-production.up.railway.app"
-CHANNEL_ID = "@Antibypassbots" # Apne channel ka username
-CHANNEL_LINK = "https://t.me/Antibypassbots" # Join karne ka link
+CHANNEL_ID = "@Antibypassbots" 
+
+# Links
+MAIN_CHANNEL = "https://t.me/c/3946440796/1"
+BACKUP_CHANNEL = "https://t.me/c/3738247687/1"
+BOT_LINK = "https://t.me/Antibypassbots"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = FastAPI()
@@ -48,29 +52,45 @@ def decode_url(encoded_str: str) -> str:
 # --- TELEGRAM BOT LOGIC ---
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    bot.reply_to(message, "👋 **Welcome to Anti-Bypass!**\n\nApni link bhejo, main use bypass-proof bana dunga.", parse_mode="Markdown")
+    bot.reply_to(message, "👋 **Welcome to Anti-Bypass!**\n\nApni link bhejo, main use bypass-proof bana dunga.", 
+                 parse_mode="Markdown", disable_web_page_preview=True)
 
 @bot.message_handler(func=lambda message: message.text.startswith(('http://', 'https://')))
 def process_link(message):
     user_id = message.from_user.id
+    
+    # Subscription Check with Custom Layout
     if not is_subscribed(user_id):
-        markup = telebot.types.InlineKeyboardMarkup()
-        btn = telebot.types.InlineKeyboardButton("📢 Join Channel", url=CHANNEL_LINK)
-        markup.add(btn)
-        bot.reply_to(message, f"🚫 **Pehle hamara channel join karo!**\n\nLink: {CHANNEL_LINK}", reply_markup=markup)
+        layout = (
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "✨ **EXCLUSIVE CONTENT HUB** ✨\n"
+            "━━━━━━━━━━━━━━━━━━━━\n\n"
+            "🔓 **Access Your Premium Files Here:**\n"
+            f"🔗 [Main Channel]({MAIN_CHANNEL}) — *Latest Exclusive Content*\n\n"
+            "🤖 **Official Bypass Bot:**\n"
+            f"🔗 [Anti-Bypass Bot]({BOT_LINK}) — *Unlock Downloads Instantly*\n\n"
+            "📦 **Backup & Premium Vault:**\n"
+            f"🔗 [Backup Channel]({BACKUP_CHANNEL}) — *Restricted Premium Files*\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "💡 *Tip: Link access karne mein dikkat ho, toh hamare Bot ka use karein.*\n"
+            "━━━━━━━━━━━━━━━━━━━━"
+        )
+        bot.reply_to(message, layout, parse_mode="Markdown", disable_web_page_preview=True)
         return
 
+    # Link Processing
     original_url = message.text.strip()
     link_id = encode_url(original_url)
     long_protected_url = f"{SERVER_URL}/verify/{link_id}"
     short_link = get_tiny_url(long_protected_url)
     
-    bot.reply_to(message, f"✅ <b>Link Secured!</b>\n\n🔗 <b>Your Link:</b> <a href='{short_link}'>{short_link}</a>", parse_mode="HTML")
+    bot.reply_to(message, f"✅ **Link Secured!**\n\n🔗 **Your Link:** {short_link}", 
+                 parse_mode="HTML", disable_web_page_preview=True)
 
 # --- WEB SERVER LOGIC ---
 @app.get("/")
 def root_page():
-    return HTMLResponse("<html><body><h1>Server is active.</h1></body></html>")
+    return HTMLResponse("<h1>Server Active</h1>")
 
 @app.get("/verify/{link_id}", response_class=HTMLResponse)
 async def serve_verify_page(request: Request, link_id: str):
