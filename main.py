@@ -46,18 +46,20 @@ def shorten_url(url: str) -> str:
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(
+        types.InlineKeyboardButton(
+            "🚀 Get Started — Watch Quick Ad",
+            web_app=types.WebAppInfo(url=f"https://{SERVER_URL}/welcome")
+        )
+    )
     bot.reply_to(message,
         "👋 <b>Welcome to Link Protector Bot!</b>\n\n"
         "I make your shortener links <b>bypass-proof</b> using Cloudflare security.\n\n"
-        "📋 <b>How to use:</b>\n"
-        "Just <b>paste any link</b> directly in the chat!\n\n"
-        "✅ <b>Supported links:</b>\n"
-        "• VPLink\n"
-        "• Aro Link\n"
-        "• AdLink\n"
-        "• Any other shortener or http/https link\n\n"
-        "⬇️ <b>Go ahead, paste your link below!</b>",
-        parse_mode="HTML"
+        "⚡ <b>Tap the button below to get started!</b>\n"
+        "<i>(Takes only 5 seconds — watch one short ad)</i>",
+        parse_mode="HTML",
+        reply_markup=markup
     )
 
 @bot.message_handler(func=lambda message: message.text and message.text.startswith(('http://', 'https://')))
@@ -107,6 +109,10 @@ def handle_unknown(message):
 @app.get("/")
 async def root_page():
     return {"status": "Server is running perfectly!"}
+
+@app.get("/welcome", response_class=HTMLResponse)
+async def welcome_page(request: Request):
+    return templates.TemplateResponse("welcome.html", {"request": request})
 
 @app.get("/verify/{link_id}", response_class=HTMLResponse)
 async def serve_verify_page(request: Request, link_id: str):
