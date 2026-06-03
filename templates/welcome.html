@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome — Link Protector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- Adsterra Ad Script -->
+  <script src="https://pl29621155.effectivecpmnetwork.com/2c/d0/1a/2cd01a877d000affa62e4d493bdc04ae.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0f1a;
+      --card: #131929;
+      --border: #1e2d45;
+      --accent: #38bdf8;
+      --accent2: #0ea5e9;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --green: #22c55e;
+      --yellow: #facc15;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow blobs */
+    .glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow1 { width: 500px; height: 500px; background: #0ea5e9; top: -200px; left: -100px; }
+    .glow2 { width: 350px; height: 350px; background: #38bdf8; bottom: -100px; right: -50px; }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem 1.8rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 80px rgba(14,165,233,0.08), 0 20px 60px rgba(0,0,0,0.5);
+      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SCREENS */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ---- SCREEN 1: AD ---- */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.4rem;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .ad-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .ad-box {
+      background: #0b0f1a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 1.4rem;
+      overflow: hidden;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    /* Countdown */
+    .countdown-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(56,189,248,0.05);
+      border: 1px solid rgba(56,189,248,0.15);
+      border-radius: 12px;
+      padding: 0.9rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .ring-container {
+      position: relative;
+      width: 52px; height: 52px;
+      flex-shrink: 0;
+    }
+    svg.ring { width: 52px; height: 52px; transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: var(--border); stroke-width: 5; }
+    .ring-progress {
+      fill: none; stroke: var(--accent);
+      stroke-width: 5; stroke-linecap: round;
+      stroke-dasharray: 132;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .ring-number {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--text);
+    }
+
+    .countdown-text h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .countdown-text p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ---- SCREEN 2: GUIDE ---- */
+    .guide-header {
+      text-align: center;
+      margin-bottom: 1.6rem;
+    }
+    .guide-header .tick {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .guide-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+    }
+    .guide-header p {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      animation: fadeStep 0.4s ease both;
+    }
+
+    .step:nth-child(1) { animation-delay: 0.05s; }
+    .step:nth-child(2) { animation-delay: 0.15s; }
+    .step:nth-child(3) { animation-delay: 0.25s; }
+    .step:nth-child(4) { animation-delay: 0.35s; }
+
+    @keyframes fadeStep {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-num {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #0b0f1a;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: var(--text);
+    }
+    .step-content p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .tip-box {
+      background: rgba(250,204,21,0.06);
+      border: 1px solid rgba(250,204,21,0.2);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-size: 0.78rem;
+      color: var(--yellow);
+      margin-bottom: 1.4rem;
+      line-height: 1.5;
+    }
+
+    /* BUTTONS */
+    .btn {
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #0b0f1a;
+      box-shadow: 0 4px 20px rgba(56,189,248,0.3);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(56,189,248,0.45);
+    }
+    .btn-primary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .pulse { animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 4px 20px rgba(56,189,248,0.3); }
+      50%      { box-shadow: 0 4px 36px rgba(56,189,248,0.6); }
+    }
+
+    .footer-note {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow glow1"></div>
+<div class="glow glow2"></div>
+
+<div class="card">
+
+  <!-- ===== SCREEN 1: AD + COUNTDOWN ===== -->
+  <div class="screen active" id="screen1">
+
+    <div class="logo">
+      <div class="logo-icon">🔒</div>
+      <div class="logo-text">Link Protector</div>
+    </div>
+
+    <div class="ad-label">📢 Advertisement — supports this free service</div>
+    <div class="ad-box">
+      <!-- Ad auto-loads via head script (pop-under) -->
+      <span style="opacity:0.4">Loading ad...</span>
+    </div>
+
+    <div class="countdown-wrap">
+      <div class="ring-container">
+        <svg class="ring" viewBox="0 0 52 52">
+          <circle class="ring-bg" cx="26" cy="26" r="21"/>
+          <circle class="ring-progress" id="ringProgress" cx="26" cy="26" r="21"/>
+        </svg>
+        <div class="ring-number" id="countNum">5</div>
+      </div>
+      <div class="countdown-text">
+        <h3 id="countTitle">Please wait...</h3>
+        <p id="countSub">Watch the short ad to continue for free</p>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="continueBtn" disabled>
+      ⏳ <span id="btnLabel">Wait (5s)</span>
+    </button>
+
+    <p class="footer-note">🛡️ Ad-supported free service · No signup needed</p>
+  </div>
+
+  <!-- ===== SCREEN 2: HOW TO USE GUIDE ===== -->
+  <div class="screen" id="screen2">
+
+    <div class="guide-header">
+      <span class="tick">✅</span>
+      <h2>You're all set!</h2>
+      <p>Here's how to use the bot in 4 simple steps</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Go back to the Bot</h4>
+          <p>Open the Telegram bot and you're ready to use it now!</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Paste your shortener link</h4>
+          <p>Send any link (VPLink, AroLink, AdLink, etc.) directly in the chat</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Get your protected link</h4>
+          <p>Bot will instantly reply with a short TinyURL — ready to share!</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Share it anywhere</h4>
+          <p>Post in Telegram groups, channels, or anywhere you want 🚀</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      💡 <b>Tip:</b> Every 20 minutes you'll see one short ad — this keeps the bot completely free for everyone!
+    </div>
+
+    <button class="btn btn-primary pulse" onclick="closeWindow()">
+      🤖 Go Use the Bot →
+    </button>
+
+    <p class="footer-note">🛡️ Protected by Cloudflare · Free forever</p>
+  </div>
+
+</div>
+
+<script>
+  const TOTAL = 5;
+  const circumference = 2 * Math.PI * 21;
+  let secondsLeft = TOTAL;
+
+  const AD_COOLDOWN = 20 * 60 * 1000; // 20 minutes in ms
+  const LAST_AD_KEY = 'lp_last_ad';
+
+  // Check if 20 min cooldown active — skip ad if so
+  const lastAd = localStorage.getItem(LAST_AD_KEY);
+  const now = Date.now();
+
+  if (lastAd && (now - parseInt(lastAd)) < AD_COOLDOWN) {
+    // Skip ad, go straight to guide
+    document.getElementById('screen1').classList.remove('active');
+    document.getElementById('screen2').classList.add('active');
+  } else {
+    // Start countdown
+    startCountdown();
+  }
+
+  function startCountdown() {
+    const ring = document.getElementById('ringProgress');
+    const numEl = document.getElementById('countNum');
+    const titleEl = document.getElementById('countTitle');
+    const subEl = document.getElementById('countSub');
+    const btn = document.getElementById('continueBtn');
+    const btnLabel = document.getElementById('btnLabel');
+
+    ring.style.strokeDasharray = circumference;
+    ring.style.strokeDashoffset = 0;
+
+    const interval = setInterval(() => {
+      secondsLeft--;
+      const progress = secondsLeft / TOTAL;
+      ring.style.strokeDashoffset = circumference * progress;
+      numEl.textContent = secondsLeft;
+      btnLabel.textContent = `Wait (${secondsLeft}s)`;
+
+      if (secondsLeft <= 0) {
+        clearInterval(interval);
+        numEl.textContent = '✓';
+        numEl.style.fontSize = '0.85rem';
+        titleEl.textContent = 'Ad watched! Thank you 🙏';
+        subEl.textContent = 'Click below to see how to use the bot';
+        btn.disabled = false;
+        btn.classList.add('pulse');
+        btnLabel.textContent = 'Continue →';
+        btn.querySelector('span:first-child') && (btn.childNodes[0].textContent = '✅ ');
+
+        // Save timestamp
+        localStorage.setItem(LAST_AD_KEY, Date.now().toString());
+      }
+    }, 1000);
+
+    btn.addEventListener('click', () => {
+      document.getElementById('screen1').classList.remove('active');
+      document.getElementById('screen2').classList.add('active');
+    });
+  }
+
+  function closeWindow() {
+    // Try closing Mini App (Telegram WebApp)
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.close();
+    } else {
+      window.close();
+    }
+  }
+</script>
+
+<!-- Telegram Mini App SDK (for close button to work) -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+</body>
+</html>
